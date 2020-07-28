@@ -6,7 +6,7 @@ const { JSDOM } = jsdom;
 const chalk = require('chalk');
 
 const verifyMdFile = (dom, path) => {
-  const links  = dom.window.document.querySelectorAll('a');
+  const links = dom.window.document.querySelectorAll('a');
   const linksArray = Array.from(links);
 
   const filteredAnchors = linksArray.filter(a => a.href.includes('http'));
