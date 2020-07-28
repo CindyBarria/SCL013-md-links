@@ -8,19 +8,22 @@ const chalk = require('chalk');
 const fetchLink = fetch.fetchUrl; */
 const nodeFetch = require('node-fetch');
 
+
 const readingFile = (path) => {
   fs.readFile(path, (err, data) => {
     if (err) {
       console.log(err)
     }
-    console.log(chalk.bgMagenta('Lectura de Archivo'));
+    console.log(chalk.bgMagenta('Lectura de Archivo: ', path));
     const html = md.render(data.toString());
     const dom = new JSDOM(html);
     verifyMdFile(dom, path);
   })
 }
+
+//Función para verificar el archivo .md y extraer los anchors
 const verifyMdFile = (dom, path) => {
-  const links  = dom.window.document.querySelectorAll('a');
+  const links = dom.window.document.querySelectorAll('a');
   const linksArray = Array.from(links);
 
   const filteredLinks = linksArray.filter(a => a.href.includes('http'));
@@ -32,23 +35,24 @@ const verifyMdFile = (dom, path) => {
       file: path
     }
   })
-  console.log(linkObjects);
+  //console.log(linkObjects);
   validateUrl(linkObjects);
 }
 
-const validateUrl = (links) => { 
+//Función para validar el estatus de la url
+const validateUrl = (links) => {
   links.map(link => {
     nodeFetch(link.href)
-    .then(resp => {
-      if(resp.status === 200) {
-        console.log(chalk.greenBright(`Link WORKING, status: ${resp.status} ${link.href}`))
-      } else {
-        console.log(chalk.redBright(`Link BROKEN, status: ${resp.status} ${link.href}`))
-      }
-    })
-    .catch(error => {
-      console.log(chalk.yellow(`Link con errores, ${link.href} ${error}`))
-    })
+      .then(resp => {
+        if (resp.status === 200) {
+          console.log(chalk.greenBright('Link WORKING', chalk.magenta('status:'), `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`))
+        } else {
+          console.log(chalk.redBright('Link BROKEN', chalk.magenta('status:'), `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`))
+        }
+      })
+      .catch(error => {
+        console.log(chalk.yellow('Link con errores', chalk.magenta('href:'), `${link.href}`, chalk.magenta('error:'), `${error}`))
+      })
   })
 };
 
