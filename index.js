@@ -5,13 +5,24 @@ const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const chalk = require('chalk');
 
+const readingFile = (path) => {
+  fs.readFile(path, (err, data) => {
+    if (err) {
+      console.log(err)
+    }
+    console.log(chalk.bgMagenta('Lectura de Archivo'));
+    const html = md.render(data.toString());
+    const dom = new JSDOM(html);
+    verifyMdFile(dom, path);
+  })
+}
 const verifyMdFile = (dom, path) => {
   const links  = dom.window.document.querySelectorAll('a');
   const linksArray = Array.from(links);
 
-  const filteredAnchors = linksArray.filter(a => a.href.includes('http'));
+  const filteredLinks = linksArray.filter(a => a.href.includes('http'));
 
-  const linkObjects = filteredAnchors.map(a => {
+  const linkObjects = filteredLinks.map(a => {
     return {
       text: a.innerHTML,
       href: a.href,
@@ -19,18 +30,6 @@ const verifyMdFile = (dom, path) => {
     }
   })
   console.log(linkObjects);
-}
-
-const readingFile = (path) => {
-  fs.readFile(path, (err, data) => {
-    if (err) {
-      console.log(err)
-    }
-    console.log(chalk.bgMagenta('Archivo leído'));
-    const html = md.render(data.toString());
-    const dom = new JSDOM(html);  //----
-    verifyMdFile(dom, path);
-  })
 }
 
 module.exports = {
