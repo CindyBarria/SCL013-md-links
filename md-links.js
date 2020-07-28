@@ -1,4 +1,5 @@
 const mdLinks = require('./index');
-const file = process.argv[2];
-const path = require('path');
 
+const files = process.argv[2];
+
+mdLinks.readingFile(files);
