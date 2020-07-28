@@ -10,7 +10,7 @@ const readingFile = (path) => {
     if (err) {
       console.log(err)
     }
-    console.log(chalk.bgMagenta('Archivo leído'));
+    console.log(chalk.bgMagenta('Lectura de Archivo'));
     const html = md.render(data.toString());
     const dom = new JSDOM(html);
     verifyMdFile(dom, path);
