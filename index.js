@@ -6,7 +6,7 @@ const { JSDOM } = jsdom;
 const chalk = require('chalk');
 const nodeFetch = require('node-fetch');
 
-
+//Leer archivo md
 const readingFile = (path) => {
   fs.readFile(path, (err, data) => {
     if (err) {
