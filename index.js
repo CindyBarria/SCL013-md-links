@@ -64,13 +64,13 @@ const printTotalLinks = (links) => {
 }
 const linksTodos = (linkObjects) => {
   let todos = [];
-  let countWorking = 0;
+
   linkObjects.forEach(links => {
     nodeFetch(links.href)
       .then(resp => {
         if (resp.status === 200) {
           console.log(links.href + 'OK')
-          countWorking += 1
+
 
         } else if (resp.status === 404) {
           console.log(links.href + 'ROTO')
@@ -79,8 +79,7 @@ const linksTodos = (linkObjects) => {
       }).catch((error) => {
         console.log(error)
       })
-    console.log(chalk.magenta(countWorking))
-    todos.push(links.href + 'OK');
+    todos.push(links.href);
   })
   console.log('todos', todos)
 
