@@ -6,6 +6,9 @@ const { JSDOM } = jsdom;
 const chalk = require('chalk');
 const nodeFetch = require('node-fetch');
 
+
+
+
 //Leer archivo md
 const readingFile = (path) => {
   fs.readFile(path, (err, data) => {
@@ -32,13 +35,18 @@ const verifyMdFile = (dom, path) => {
       href: a.href,
       file: path
     }
+
   })
+  linksTodos(linkObjects);
   //console.log(linkObjects);
   validateUrl(linkObjects);
   printTotalLinks(linkObjects);
   printTotalWorking(linkObjects)
 
 }
+
+
+
 //calcular total de links y links unicos
 const printTotalLinks = (links) => {
   let numOfLinks = [];
@@ -54,23 +62,45 @@ const printTotalLinks = (links) => {
     chalk.yellow(uniqueLinks.size)
   );
 }
+const linksTodos = (linkObjects) => {
+  let todos = [];
+  let countWorking = 0;
+  linkObjects.forEach(links => {
+    nodeFetch(links.href)
+      .then(resp => {
+        if (resp.status === 200) {
+          console.log(links.href + 'OK')
+          countWorking += 1
 
+        } else if (resp.status === 404) {
+          console.log(links.href + 'ROTO')
+
+        }
+      }).catch((error) => {
+        console.log(error)
+      })
+    console.log(chalk.magenta(countWorking))
+    todos.push(links.href + 'OK');
+  })
+  console.log('todos', todos)
+
+}
 const printTotalWorking = (links) => {
   let countWorking = 0;
   links.map(link => {
     nodeFetch(link.href)
       .then(resp => {
         if (resp.status === 200) {
-          countWorking++
+          countWorking += 1
         }
       }).catch((error) => {
         console.log(error)
       })
   })
 
-  /*console.log(
+  console.log(
     chalk.black.bgMagenta("Working: "),
-    chalk.magenta(countWorking));*/
+    chalk.magenta(countWorking));
 }
 
 //Función para validar el estatus de la url
