@@ -2,11 +2,14 @@
 const fs = require('fs');
 const md = require('markdown-it')();
 const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
+const {
+  JSDOM
+} = jsdom;
 const chalk = require('chalk');
 const nodeFetch = require('node-fetch');
 
-//Leer archivo md
+
+//Función que lee el archivo .md
 const readingFile = (path) => {
   fs.readFile(path, (err, data) => {
     if (err) {
@@ -14,12 +17,12 @@ const readingFile = (path) => {
     }
     console.log(chalk.bgMagenta('Lectura de Archivo: ', path));
     const html = md.render(data.toString());
-    const dom = new JSDOM(html);  //----
+    const dom = new JSDOM(html); //----
     verifyMdFile(dom, path);
   })
 }
 
-//Función para verificar el archivo .md y extraer los anchors
+//Función para verificar el archivo .md y extraer los anchors devolviendo un array de objetos
 const verifyMdFile = (dom, path) => {
   const links = dom.window.document.querySelectorAll('a');
   const linksArray = Array.from(links);
@@ -36,10 +39,10 @@ const verifyMdFile = (dom, path) => {
   //console.log(linkObjects);
   validateUrl(linkObjects);
   printTotalLinks(linkObjects);
-  printTotalWorking(linkObjects)
+  printTotalBroken(linkObjects)
 
 }
-//calcular total de links y links unicos
+//Función que calcula total de links y links unicos
 const printTotalLinks = (links) => {
   let numOfLinks = [];
 
@@ -54,23 +57,28 @@ const printTotalLinks = (links) => {
     chalk.yellow(uniqueLinks.size)
   );
 }
-
-const printTotalWorking = (links) => {
-  let countWorking = 0;
-  links.map(link => {
-    nodeFetch(link.href)
+//Función que calcula total de links rotos
+const printTotalBroken = (links) => {
+  const linksHref = links.map((link) => link.href);
+  //console.log('este es linkhref',linksHref)
+  let brokenLinks;
+  let countBroken = 0;
+  linksHref.forEach(elem => {
+    brokenLinks = nodeFetch(elem)
       .then(resp => {
-        if (resp.status === 200) {
-          countWorking++
+        if (resp.status !== 200) {
+          countBroken++
         }
-      }).catch((error) => {
-        console.log(error)
+        return countBroken;
+        //console.log(countWorking, 'este es countworking')
       })
+      .catch(error => {
+        console.log(error)
+      });
   })
-
-  /*console.log(
-    chalk.black.bgMagenta("Working: "),
-    chalk.magenta(countWorking));*/
+  brokenLinks.then((res) => {
+    console.log(chalk.black.bgRed("Broken: "), chalk.redBright(res))
+  });
 }
 
 //Función para validar el estatus de la url
