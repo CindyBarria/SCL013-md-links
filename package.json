@@ -30,6 +30,9 @@
   },
   "homepage": "https://github.com/CindyBarria/SCL013-md-links#readme",
   "devDependencies": {
+    "eslint": "^7.6.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "jest": "^26.1.0"
   },
   "dependencies": {
