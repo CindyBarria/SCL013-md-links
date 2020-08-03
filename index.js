@@ -2,24 +2,36 @@
 const fs = require('fs');
 const md = require('markdown-it')();
 const jsdom = require('jsdom');
-const {
-  JSDOM
-} = jsdom;
+const { JSDOM } = jsdom;
 const chalk = require('chalk');
 const nodeFetch = require('node-fetch');
 
-
+// Función para limitar texto a 50 caracteres
+const limitText = (text) => {
+  if (text.length > 50) {
+    const textFile = text.slice(0, 50);
+    return textFile;
+  } else {
+    return text;
+  }
+}
 //Función que lee el archivo .md
-const readingFile = (path) => {
-  fs.readFile(path, (err, data) => {
-    if (err) {
-      console.log(err)
-    }
-    console.log(chalk.bgMagenta('Lectura de Archivo: ', path));
-    const html = md.render(data.toString());
-    const dom = new JSDOM(html); //----
-    verifyMdFile(dom, path);
+const readingFile  = (path, options) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => {
+       if (err) {
+         reject(err);
+       } else {
+         resolve(data)
+       }
+    })
   })
+  .then(data => {
+    const html = md.render(data.toString());
+    const dom = new JSDOM(html);
+    verifyMdFile(dom, path, options);
+  })
+ .catch(err => console.log(err))
 }
 
 //Función para verificar el archivo .md y extraer los anchors devolviendo un array de objetos
@@ -29,23 +41,22 @@ const verifyMdFile = (dom, path) => {
 
   const filteredAnchors = linksArray.filter(a => a.href.includes('http'));
 
-  const linkObjects = filteredAnchors.map(a => {
+  const objects = filteredAnchors.map(a => {
     return {
-      text: a.innerHTML,
+      text: limitText(a.innerHTML),
       href: a.href,
       file: path
     }
   })
-  //console.log(linkObjects);
-  validateUrl(linkObjects);
-  printTotalLinks(linkObjects);
-  printTotalBroken(linkObjects)
+
+  validateUrl(objects);
+  printTotalLinks(objects);
+  printTotalBroken(objects)
 
 }
 //Función que calcula total de links y links unicos
 const printTotalLinks = (links) => {
   let numOfLinks = [];
-
   links.forEach(link => {
     numOfLinks.push(link.href);
   });
@@ -60,7 +71,6 @@ const printTotalLinks = (links) => {
 //Función que calcula total de links rotos
 const printTotalBroken = (links) => {
   const linksHref = links.map((link) => link.href);
-  //console.log('este es linkhref',linksHref)
   let brokenLinks;
   let countBroken = 0;
   linksHref.forEach(elem => {
@@ -70,7 +80,6 @@ const printTotalBroken = (links) => {
           countBroken++
         }
         return countBroken;
-        //console.log(countWorking, 'este es countworking')
       })
       .catch(error => {
         console.log(error)
@@ -91,7 +100,6 @@ const validateUrl = (links) => {
         } else if (resp.status === 404) {
           console.log(chalk.redBright('Link BROKEN', chalk.magenta('status:'), `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`))
         }
-
       })
       .catch(error => {
         console.log(chalk.yellow('Link con errores', chalk.magenta('href:'), `${link.href}`, chalk.magenta('error:'), `${error}`))
@@ -99,7 +107,6 @@ const validateUrl = (links) => {
   })
 };
 
-
 module.exports = {
-  readingFile: readingFile
+  readingFile: readingFile,
 }
