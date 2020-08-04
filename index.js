@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const fs = require('fs');
 const md = require('markdown-it')();
 const jsdom = require('jsdom');
@@ -20,12 +21,12 @@ const validateUrl = (links) => {
   links.map((link) => {
     nodeFetch(link.href)
       .then((resp) => {
-        if (resp.status === 200) {
+        if (resp.statusText === 'OK') {
           // eslint-disable-next-line no-console
-          console.log(chalk.greenBright('Link WORKING', chalk.magenta('status:'), `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`));
+          console.log(chalk.greenBright('Link WORKING', chalk.magenta('status:'), `${resp.statusText}`, `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`));
         } else if (resp.status === 404) {
           // eslint-disable-next-line no-console
-          console.log(chalk.redBright('Link BROKEN', chalk.magenta('status:'), `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`));
+          console.log(chalk.redBright('Link BROKEN', chalk.magenta('status:'), 'FAIL', `${resp.status}`, chalk.magenta('href:'), `${link.href}`, chalk.magenta('text:'), `${link.text}`, chalk.magenta('file:'), `${link.file}`));
         }
       })
       .catch((error) => {
@@ -94,9 +95,10 @@ const verifyMdFile = (dom, path, options) => {
 
   if (options.validate === true && options.stats === true) {
     validateUrl(objects);
-    printTotalLinks(objects);
-    printTotalBroken(objects);
-  } else if (options.validate === true) {
+    Promise.all([printTotalLinks(objects), printTotalBroken(objects)])
+      .then((result) => console.log('result', result))
+      .catch((error) => console.log(`Error in promises ${error}`));
+} else if (options.validate === true) {
     validateUrl(objects);
   } else if (options.stats === true) {
     printTotalLinks(objects);
@@ -134,58 +136,4 @@ const readingFile = (path, options = { validate: false, stats: false }) => {
     });
 };
 
-// Función principal que se exporta a md-links
-const mdLinksModule = (path, arg = []) => {
-  if ((arg.includes('--validate') && arg.includes('--stats')) || (arg.includes('--v') && arg.includes('--s'))) {
-    readingFile(path, { validate: true, stats: true });
-  } else if (arg.includes('--validate') || arg.includes('--v')) {
-    readingFile(path, { validate: true, stats: false });
-  } else if (arg.includes('--stats') || arg.includes('--s')) {
-    readingFile(path, { validate: false, stats: true });
-  } else {
-    readingFile(path);
-  }
-};
-// Función para verificar el archivo .md y extraer los anchors devolviendo un array de objetos
-/* const verifyMdFile = (dom, path) => {
-  const links = dom.window.document.querySelectorAll('a');
-  const linksArray = Array.from(links);
-
-  const filteredAnchors = linksArray.filter((a) => a.href.includes('http'));
-
-  // eslint-disable-next-line arrow-body-style
-  const objects = filteredAnchors.map((a) => {
-    return {
-      text: limitText(a.innerHTML),
-      href: a.href,
-      file: path,
-    };
-  });
-
-  validateUrl(objects);
-  printTotalLinks(objects);
-  printTotalBroken(objects);
-}; */
-
-// Función que lee el archivo .md
-// eslint-disable-next-line arrow-body-style
-/* const readingFile = (path, options) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  })
-    .then((data) => {
-      const html = md.render(data.toString());
-      const dom = new JSDOM(html);
-      verifyMdFile(dom, path, options);
-    })
-    // eslint-disable-next-line no-console
-    .catch((err) => console.log(err));
-}; */
-
-module.exports = mdLinksModule;
+module.exports = readingFile;
