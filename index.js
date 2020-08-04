@@ -6,82 +6,6 @@ const { JSDOM } = jsdom;
 const chalk = require('chalk');
 const nodeFetch = require('node-fetch');
 
-
-const mdLinksModule = (path, arguments =[]) => {
-  if((arguments.includes('--validate') && arguments.includes('--stats')) ||(arguments.includes('--v') && arguments.includes('--s')) ) {
-    readingFile(path, {validate: true, stats: true});
-  } else if (arguments.includes('--validate') || arguments.includes('--v')) {
-    readingFile(path, {validate: true, stats: false});
-  } else if (arguments.includes('--stats') || arguments.includes('--s')) {
-    readingFile(path, {validate: false, stats: true});
-  }  else {
-    readingFile(path);
-  }
-}
-
-//Función que lee el archivo .md
-const readingFile = (path, options ={validate: false, stats: false}) => {
-  return new Promise((resolve,reject) => {
-    fs.readFile(path, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-      
-    })
-
-  })
-  .then((data) => {
-      console.log(chalk.bgMagenta('Lectura de Archivo: ', path));
-      const html = md.render(data.toString());
-      const dom = new JSDOM(html); 
-      verifyMdFile(dom, path, options);
-  })
-  .catch((err) => {
-    console.log(err);
-  });  
-}
-
-//Función para verificar el archivo .md y extraer los anchors devolviendo un array de objetos
-const verifyMdFile = (dom, path, options) => {
-  const links = dom.window.document.querySelectorAll('a');
-  const linksArray = Array.from(links);
-
-  const filteredLinks = linksArray.filter(a => a.href.includes('http'));
-
-  const objects = filteredLinks.map(a => {
-    return {
-      text: a.innerHTML,
-      href: a.href,
-      file: path
-    }
-  })
-
-  if (options.validate === true && options.stats === true) {
-    validateUrl(objects);
-    printTotalLinks(objects);
-    printTotalBroken(objects)
-  } else if (options.validate === true) {
-    validateUrl(objects);
-  } else if (options.stats === true) {
-    printTotalLinks(objects);
-    printTotalBroken(objects)
-  } else {
-    //console.log(objects);
-    objects.forEach(link => {
-      console.log(chalk.blueBright('=>'),chalk.magentaBright(link.href),chalk.cyanBright.bold(link.text),chalk.bgBlue.bold(link.file))
-    })
-  }
-    
-  //console.log(linkObjects);
-  /* validateUrl(objects);
-  printTotalLinks(objects);
-  printTotalBroken(objects) */
-}
-
-
-
 // Función para limitar texto a 50 caracteres
 const limitText = (text) => {
   if (text.length > 50) {
@@ -127,6 +51,7 @@ const printTotalLinks = (links) => {
     chalk.yellow(uniqueLinks.size),
   );
 };
+
 // Función que calcula total de links rotos
 const printTotalBroken = (links) => {
   const linksHref = links.map((link) => link.href);
@@ -152,7 +77,77 @@ const printTotalBroken = (links) => {
 };
 
 // Función para verificar el archivo .md y extraer los anchors devolviendo un array de objetos
-const verifyMdFile = (dom, path) => {
+const verifyMdFile = (dom, path, options) => {
+  const links = dom.window.document.querySelectorAll('a');
+  const linksArray = Array.from(links);
+
+  const filteredLinks = linksArray.filter((a) => a.href.includes('http'));
+
+  // eslint-disable-next-line arrow-body-style
+  const objects = filteredLinks.map((a) => {
+    return {
+      text: limitText(a.innerHTML),
+      href: a.href,
+      file: path,
+    };
+  });
+
+  if (options.validate === true && options.stats === true) {
+    validateUrl(objects);
+    printTotalLinks(objects);
+    printTotalBroken(objects);
+  } else if (options.validate === true) {
+    validateUrl(objects);
+  } else if (options.stats === true) {
+    printTotalLinks(objects);
+    printTotalBroken(objects);
+  } else {
+    objects.forEach((link) => {
+      // eslint-disable-next-line no-console
+      console.log(chalk.blueBright('=>'), chalk.magentaBright(link.href), chalk.cyanBright.bold(link.text), chalk.bgBlue.bold(link.file));
+    });
+  }
+};
+
+// Función que lee el archivo .md
+// eslint-disable-next-line arrow-body-style
+const readingFile = (path, options = { validate: false, stats: false }) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  })
+    .then((data) => {
+      // eslint-disable-next-line no-console
+      console.log(chalk.bgMagenta('Lectura de Archivo: ', path));
+      const html = md.render(data.toString());
+      const dom = new JSDOM(html);
+      verifyMdFile(dom, path, options);
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+    });
+};
+
+// Función principal que se exporta a md-links
+const mdLinksModule = (path, arg = []) => {
+  if ((arg.includes('--validate') && arg.includes('--stats')) || (arg.includes('--v') && arg.includes('--s'))) {
+    readingFile(path, { validate: true, stats: true });
+  } else if (arg.includes('--validate') || arg.includes('--v')) {
+    readingFile(path, { validate: true, stats: false });
+  } else if (arg.includes('--stats') || arg.includes('--s')) {
+    readingFile(path, { validate: false, stats: true });
+  } else {
+    readingFile(path);
+  }
+};
+// Función para verificar el archivo .md y extraer los anchors devolviendo un array de objetos
+/* const verifyMdFile = (dom, path) => {
   const links = dom.window.document.querySelectorAll('a');
   const linksArray = Array.from(links);
 
@@ -170,11 +165,11 @@ const verifyMdFile = (dom, path) => {
   validateUrl(objects);
   printTotalLinks(objects);
   printTotalBroken(objects);
-};
+}; */
 
 // Función que lee el archivo .md
 // eslint-disable-next-line arrow-body-style
-const readingFile = (path, options) => {
+/* const readingFile = (path, options) => {
   return new Promise((resolve, reject) => {
     fs.readFile(path, (err, data) => {
       if (err) {
@@ -191,11 +186,6 @@ const readingFile = (path, options) => {
     })
     // eslint-disable-next-line no-console
     .catch((err) => console.log(err));
-};
+}; */
 
-module.exports = {
-  //readingFile: readingFile
-  mdLinksModule: mdLinksModule,
-  readingFile: readingFile
-}
-
+module.exports = mdLinksModule;
