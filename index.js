@@ -6,6 +6,16 @@ const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const chalk = require('chalk');
 const nodeFetch = require('node-fetch');
+const figlet = require('figlet');
+
+figlet('Md Links !', {
+  font: 'isometric1',
+  horizontalLayout: 'default',
+  verticalLayout: 'default',
+}, (err, result) => {
+  // eslint-disable-next-line no-console
+  console.log(chalk.magenta(err || result));
+});
 
 // Función para limitar texto a 50 caracteres
 const limitText = (text) => {
@@ -129,9 +139,9 @@ const readingFile = (path, options = { validate: false, stats: false }) => {
       const dom = new JSDOM(html);
       verifyMdFile(dom, path, options);
     })
-    .catch((err) => {
+    .catch(() => {
       // eslint-disable-next-line no-console
-      console.log(err);
+      console.log(chalk.yellow(('Por Favor ingresa un archivo de extensión .md')));
     });
 };
 

@@ -16,7 +16,7 @@ Markdown Links es una librería de Node.js que nos permite buscar en un director
 
 ## 2. Diagrama de Flujo
 
-![md-links](https://user-images.githubusercontent.com/110297/42118443-b7a5f1f0-7bc8-11e8-96ad-9cc5593715a6.jpg)
+![md-links](https://i.ibb.co/PcLwfr9/FlujoMd.png)
 
 ## 3. Instalación
 Para instalar la librería debes correr el siguiente comando:
