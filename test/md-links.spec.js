@@ -43,18 +43,18 @@ describe('mdLinks.validateUrl', () => {
     // eslint-disable-next-line no-undef
     expect(typeof mdLinks.validateUrl).toBe('function');
   });
-  const links = [
+  /* const links = [
     {
       text: 'Markdown',
       href: 'https://es.wikipedia.org/wiki/Markdown',
       file: 'prueba.md',
     },
   ];
-  // eslint-disable-next-line no-undef
-  it('should return an object', () => {
+   it('should return an object', () => {
     return mdLinks.validateUrl(links).then((data) => {
       // eslint-disable-next-line no-undef
       expect(typeof (data)).toBe('Object');
     });
   });
+  */
 });
