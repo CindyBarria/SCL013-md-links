@@ -20,21 +20,26 @@ Markdown Links es una librería de Node.js que nos permite buscar en un director
 
 ## 3. Instalación
 Para instalar la librería debes correr el siguiente comando:
-#### `npm install`
+#### `npm install cep-md-links`
 
-# Pre-requisitos
-Para el correcto funcionamiento, debes tener instalado Node.js, y otras librearías complementarias:
+## 4. Herramientas Utilizadas
+
+La libreria contiene las siguientes dependencias:
 * Node.js
 * File System
 * Node-fetch
 * Jsdom
 * Markdown-it
 * Chalk
+* Figlet
 
-## 4. Utilización de librería
-Ingresa el siguiente comando en la terminal:
-#### `node `
-La librería te enviará la siguiente información:
+## 5. Uso de la librería
+Para hacer uso de la libreria:
+
+Debes importarla dentro de tu archivo js de la siguiente manera:
+#### `const nombre = require('cep-md-links')`
+
+La librería te ofrece la siguiente información:
 
 * Ruta del directorio.
 * Nombre del archivo .md
@@ -43,4 +48,16 @@ La librería te enviará la siguiente información:
 * Total de archivos rotos
 
 ## 5. Ejemplo
+
+Puedes hacer uso de esta libreria a traves de una serie de instrucciones.
+
+⦁ Sin opciones: debes ejecutarlo de la siguiente manera a traves del terminal:
+
+#### node md-links <path-to-file>
+
+![Screenshot](./img/mdlinks.PNG)
+
+#### node md-links <path-to-file> [options]
+Opcion Validate --v 
+
 
