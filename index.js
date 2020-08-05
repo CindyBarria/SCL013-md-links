@@ -95,10 +95,9 @@ const verifyMdFile = (dom, path, options) => {
 
   if (options.validate === true && options.stats === true) {
     validateUrl(objects);
-    Promise.all([printTotalLinks(objects), printTotalBroken(objects)])
-      .then((result) => console.log('result', result))
-      .catch((error) => console.log(`Error in promises ${error}`));
-} else if (options.validate === true) {
+    printTotalLinks(objects);
+    printTotalBroken(objects);
+  } else if (options.validate === true) {
     validateUrl(objects);
   } else if (options.stats === true) {
     printTotalLinks(objects);
@@ -136,4 +135,6 @@ const readingFile = (path, options = { validate: false, stats: false }) => {
     });
 };
 
-module.exports = readingFile;
+module.exports = {
+  limitText, validateUrl, readingFile, verifyMdFile,
+};
